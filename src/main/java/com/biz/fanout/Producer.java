@@ -22,14 +22,19 @@ public class Producer extends Thread {
 	private static final String PASSWORD = "guest";
 	private static final String HOST = "localhost";
 	private static String EXCHANGE_NAME = "chat";
-	private static String ROUTING_KEY = "";
+	private  String nikName =null; //把路由键当作用户名 ROUTING_KEY
 	//private static String QUEUE_NAME;
-	private static Channel channel;
-	private static Connection connection;
+	private  Channel channel;
+	private  Connection connection;
 public void run(){
+	  while(nikName==null) {
+	  System.out.println("请输入你的昵称>");
+	  Scanner s = new Scanner(System.in);
+	  nikName = s.nextLine();
+	  }
 	while(true) {
 	 synchronized(this){
-	   System.out.println("me >");
+	   System.out.println(nikName+"：>");
 	  Scanner scan = new Scanner(System.in);
 	  String read = scan.nextLine();
 	
@@ -50,14 +55,14 @@ public void run(){
 			AMQP.BasicProperties.Builder properties = new AMQP.BasicProperties().builder();
 			properties.deliveryMode(2); // 设置消息是否持久化，1： 非持久化 2：持久化
 			// 方式二设置消息持久化：MessageProperties.PERSISTENT_TEXT_PLAIN
-			channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, properties.build(), message.getBytes());
+			channel.basicPublish(EXCHANGE_NAME, nikName, properties.build(), message.getBytes());
 		} catch (IOException e1) {
 
 			e1.printStackTrace();
 		} catch (TimeoutException e1) {
 
 			e1.printStackTrace();
-		}finally {
+		}/*finally {
 			
 			if (connection != null) {
 				try {
@@ -73,7 +78,7 @@ public void run(){
 				}
 				}
 			
-		}
+		}*/
 
 	}
 

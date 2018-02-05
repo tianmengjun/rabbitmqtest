@@ -25,10 +25,10 @@ public class Consumer extends Thread {
 	private static final String HOST = "localhost";
 	private static final String EXCHANGE_NAME = "chat";
 	private static final String ROUTING_KEY = "";
-	private static String QUEUE_NAME;
+	//private static String QUEUE_NAME;
 	private static Connection connection;
 	private static Channel channel;
-
+	
 	void receiveMassage() {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(HOST);
@@ -38,36 +38,29 @@ public class Consumer extends Thread {
 		try {
 			connection = factory.newConnection();
 			channel = connection.createChannel();
-			channel.exchangeDeclare(EXCHANGE_NAME, "fanout", true);
-			QUEUE_NAME = channel.queueDeclare().getQueue();
+		   channel.exchangeDeclare(EXCHANGE_NAME, "fanout", true);
+			String QUEUE_NAME = channel.queueDeclare().getQueue();
 			channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}
-
-		// 设置手动应答
-		boolean autoAck = false;
-		String consumerTag = "";
-
-		try {
+			// 设置手动应答
+			boolean autoAck = false;
+			String consumerTag = "";
 			channel.basicConsume(QUEUE_NAME, autoAck, consumerTag, new DefaultConsumer(channel) {
 				@Override
 				public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties,
 						byte[] body) throws IOException {
 					long deliveryTag = envelope.getDeliveryTag();
 					String massage = new String(body, "UTF-8");
-					System.out.println("receive:" + massage);
+					System.out.println(envelope.getRoutingKey()+":" + massage);
 					
 					channel.basicAck(deliveryTag, false);
 
 				}
 			});
 		} catch (IOException e) {
-
 			e.printStackTrace();
-		}finally {
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+		}/*finally {
 		
 		if (connection != null) {
 			try {
@@ -83,7 +76,7 @@ public class Consumer extends Thread {
 			}
 			}
 		
-	}
+	}*/
 	}
 
 	public void run() {
