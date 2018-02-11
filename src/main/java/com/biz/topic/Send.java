@@ -1,7 +1,3 @@
-/**
- * TODO
- * 
- */
 package com.biz.topic;
 
 import com.rabbitmq.client.ConnectionFactory;
